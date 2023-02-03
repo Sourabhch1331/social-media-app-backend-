@@ -147,6 +147,7 @@ exports.forgotPassword = catchAsync(async (req,res,next)=>{
         return next(Error('There was some problem sending email! Try again later.'));
     }
 
+    
 });
 
 exports.resetPassword = catchAsync(async (req,res,next) => {

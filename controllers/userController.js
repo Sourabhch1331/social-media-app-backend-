@@ -32,7 +32,6 @@ exports.updateMe = catchAsync(async (req,res,next)=>{
 
 exports.getAllUsers = async (req,res,next) => {
     const users = await userModel.find();
-
     res.status(200).json({
         status: 'success',
         data: users

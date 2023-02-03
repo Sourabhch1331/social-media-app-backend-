@@ -26,7 +26,6 @@ if(process.env.Node_ENV === 'development'){
     app.use(morgan('dev'));
 }
 
-
 app.use('/api/v1/user',userRoutes);
 app.use('/',(req,res)=>{
     res.send('hello from server');

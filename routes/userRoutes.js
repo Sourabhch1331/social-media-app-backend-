@@ -12,7 +12,6 @@ userRouter.get('/logout',authController.logout);
 userRouter.post('/forgotPassword',authController.forgotPassword);
 userRouter.patch('/resetPassword/:token',authController.resetPassword);
 
-
 // All the below routes are protected
 userRouter.use(authController.protect);
 
