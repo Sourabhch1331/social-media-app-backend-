@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
         required: [true,'A User must have a name'],
         maxlength: 20
     },
+    username: {
+        type: String,
+        required: [true,'A User must have a username'],
+        unique: true
+    },
     photo:{
         type: String,
         default: 'default.jpeg'

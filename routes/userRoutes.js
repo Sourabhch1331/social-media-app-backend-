@@ -13,12 +13,12 @@ userRouter.post('/forgotPassword',authController.forgotPassword);
 userRouter.patch('/resetPassword/:token',authController.resetPassword);
 
 // All the below routes are protected
+userRouter.get('/',userController.getAllUsers);
 userRouter.use(authController.protect);
 
 userRouter.patch('/updateMe',userController.updateMe);
 userRouter.patch('/updateMyPassword',authController.updatePassword);    // add photo upload functionalities
 
-userRouter.get('/',userController.getAllUsers);
 
 
 module.exports= userRouter;

@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const userRoutes = require('./routes/userRoutes');
+const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
@@ -31,8 +32,5 @@ app.use('/',(req,res)=>{
     res.send('hello from server');
 });
 
-app.use((err,req,res,next)=>{
-    console.log('There is some error💥',err);
-    next();
-})
+app.use(globalErrorHandler);
 module.exports=app;

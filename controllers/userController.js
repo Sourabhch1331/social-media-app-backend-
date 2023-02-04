@@ -14,7 +14,7 @@ const createFilterObj = (obj,...keep)=>{
 exports.updateMe = catchAsync(async (req,res,next)=>{
 
     if(req.body.password || req.body.passwordConfirm){
-        return next(Error('This route is not for password update!'));
+        return next(new AppError('This route is not for password update!',400));
     }
     const filterObj = createFilterObj(req.body,'name','email');
 

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const Email = require('../utils/email');
-
+const AppError = require('../utils/appError');
 
 
 const signToken = (id)=>{
@@ -44,7 +44,7 @@ exports.protect= catchAsync(async (req,res,next)=>{
     }
 
     if(!token){
-        return next(Error('User not logged in!'));
+        return next(new AppError('User not logged in!',401));
     }
 
     // 2) Verification of Token
@@ -59,7 +59,7 @@ exports.protect= catchAsync(async (req,res,next)=>{
     }
 
     if(currUser.changedPasswordsAfter(decoded.iat)){
-        return next(Error('Password changed! Please login again!'));
+        return next(new AppError('Password changed! Please login again!',401));
     }
 
     req.user=currUser;
@@ -70,6 +70,7 @@ exports.protect= catchAsync(async (req,res,next)=>{
 exports.signUp = catchAsync(async (req,res,next)=>{
     const newUser = await UserModel.create({
         name: req.body.name,
+        username: req.body.username,
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm
@@ -82,13 +83,13 @@ exports.login = catchAsync(async (req,res,next)=>{
     const {email,password} = req.body;
     // console.log(email);
     if(!email || !password) {
-        next(Error('No email or password provided'));
+        return next(new AppError('No email or password provided',400));
     }
 
     const user = await UserModel.findOne({ email }).select('+password');
 
     if(!user || !await user.verifyPassword(password,user.password)) {
-        return next(Error('wrong email or password'));
+        return next(new AppError('wrong email or password',401));
     }
 
     createAndSendToken(user,200,res);
@@ -106,11 +107,11 @@ exports.updatePassword = catchAsync(async(req,res,next)=>{
     const user = await UserModel.findById(req.user.id).select('+password');
     
     if(!user){
-        return next(Error('No user exist!'));
+        return next(new AppError('No user exist!',400));
     }
 
     if(!user.verifyPassword(password,user.password)){
-        return next(Error('Wrong password provided!'));
+        return next(new AppError('Wrong password provided!,401'));
     }
 
     user.password=newPassword;
@@ -124,7 +125,7 @@ exports.updatePassword = catchAsync(async(req,res,next)=>{
 exports.forgotPassword = catchAsync(async (req,res,next)=>{
     const email = req.body.email;
     const user = await UserModel.findOne({email});
-    if(!user) return next(Error('No user exist with provided email!'));
+    if(!user) return next(new AppError('No user exist with provided email!',400));
 
     const passwordResetToken = user.createPasswordResetToken();
     await user.save({validateBeforeSave:false});
@@ -144,10 +145,10 @@ exports.forgotPassword = catchAsync(async (req,res,next)=>{
         user.passwordResetExpires=undefined;
         await user.save({validateBeforeSave:false});
         
-        return next(Error('There was some problem sending email! Try again later.'));
+        return next(new AppError('There was some problem sending email! Try again later.',500));
     }
 
-    
+
 });
 
 exports.resetPassword = catchAsync(async (req,res,next) => {
@@ -161,7 +162,7 @@ exports.resetPassword = catchAsync(async (req,res,next) => {
     const user = await UserModel.findOne({passwordResetToken: hashedToken,passwordResetExpires : {$gt:Date.now()}});
     
     // 2) If token has not expired, and there is user, set new password
-    if(!user) return next(Error('Token is invalid or has expired'));
+    if(!user) return next(new AppError('Token is invalid or has expired',401));
     
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
