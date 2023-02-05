@@ -17,9 +17,13 @@ const postSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    img:{
+    photo:{
         type: String,
         required: [true,'A post must have a img']
+    },
+    imgName:{
+        type: String,
+        required: true
     },
     createdAt:Date,
     likes:{

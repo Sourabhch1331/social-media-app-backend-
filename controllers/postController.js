@@ -1,14 +1,69 @@
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const postModel = require('../models/postModel');
 const commentModel = require('../models/commentModel');
 const userModel = require('../models/userModel');
 
+
+// Cloudinary config
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
+
+
+// Multer config
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage,
+    //limiting file size by 5Mb
+    limits: { fileSize: 5 * 1024 * 1024 },
+    //accepting only jpg jpeg png files
+    fileFilter: function (req, file, cb) {
+        const fileRegex = new RegExp('\.(jpg|jpeg|png)$');
+        const fileName = file.originalname;
+
+        if (!fileName.match(fileRegex)) {
+            //throw exception
+            return cb(new Error('Invalid file type'));
+        }
+        //pass the file
+        cb(null, true);
+    }
+});
+
+const uploadStream = (fileStream, name) => {
+    return new Promise((resolve, reject) => {        
+        cloudinary.uploader.upload_stream({ public_id: name }, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result);
+            }
+        }).end(fileStream)
+    });
+};
+
+exports.multerMiddleware=upload.single('photo');
+
 exports.createPost = catchAsync(async (req,res,next)=>{
-    const {caption,img} = req.body;
+
+    // img uploading
+    const imageSream= req.file.buffer;
+    const imageName = `${req.user.email}-${Date.now()}`;
+
+    const uploadResult = await uploadStream(imageSream, imageName);
+
+
+    const {caption} = req.body;
     const post = await postModel.create({
         caption,
-        img,
+        photo: uploadResult.url,
+        imgName:imageName,
         createdAt: new Date().toLocaleDateString(),
         user: req.user._id
     });
@@ -23,7 +78,7 @@ exports.createPost = catchAsync(async (req,res,next)=>{
 
 exports.deletePost = catchAsync(async (req,res,next)=>{
 
-    const deletedPost=await postModel.deleteOne({
+    const deletedPost=await postModel.findOneAndDelete({
         $and:[
             {
                 _id:{ $eq: req.params.postId }
@@ -34,8 +89,11 @@ exports.deletePost = catchAsync(async (req,res,next)=>{
         ]
     });
 
-    if(deletedPost.deletedCount === 0) return next(new AppError('post not found or you are not aloowrd to delete it.',400));
+    if(!deletedPost) return next(new AppError('post not found or you are not allowed to delete it.',400));
 
+    await cloudinary.uploader.destroy(deletedPost.imgName, (err,result)=>{
+        if(err) next(new AppError('Unable to delte',500));
+    });
 
     res.status(200).json({
         status: 'success',

@@ -1,6 +1,9 @@
 const {promisify} = require('util');
 const crypto = require('crypto');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
 const jwt = require('jsonwebtoken');
+
 const UserModel = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const Email = require('../utils/email');
@@ -31,6 +34,70 @@ const createAndSendToken = (user,statusCode,res)=>{
     });
 };
 
+// Cloudinary config
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
+
+
+// Multer config
+
+const storage = multer.memoryStorage();
+
+const upload = multer({ 
+    storage,
+    //limiting file size by 5Mb
+    limits: { fileSize: 5 * 1024 * 1024 },
+    //accepting only jpg jpeg png files
+    fileFilter: function (req, file, cb) {
+        const fileRegex = new RegExp('\.(jpg|jpeg|png)$');
+        const fileName = file.originalname;
+
+        if (!fileName.match(fileRegex)) {
+            //throw exception
+            return cb(new Error('Invalid file type'));
+        }
+        //pass the file
+        cb(null, true);
+    }
+});
+
+exports.multerMiddleware=upload.single('photo');
+
+const uploadStream = (fileStream, name) => {
+    return new Promise((resolve, reject) => {        
+        cloudinary.uploader.upload_stream({ public_id: name }, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result);
+            }
+        }).end(fileStream)
+    });
+};
+
+exports.signUp = catchAsync(async (req,res,next)=>{
+
+    // console.log(req.file);
+    const imageSream= req.file.buffer;
+    const imageName = req.body.email;
+
+    const uploadResult = await uploadStream(imageSream, imageName);
+
+
+    const newUser = await UserModel.create({
+        name: req.body.name,
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm,
+        photo:uploadResult.url
+    });
+
+    createAndSendToken(newUser,201,res);
+});
 
 exports.protect= catchAsync(async (req,res,next)=>{
     let token;
@@ -66,17 +133,6 @@ exports.protect= catchAsync(async (req,res,next)=>{
 });
 
 
-exports.signUp = catchAsync(async (req,res,next)=>{
-    const newUser = await UserModel.create({
-        name: req.body.name,
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm
-    });
-
-    createAndSendToken(newUser,201,res);
-});
 
 exports.login = catchAsync(async (req,res,next)=>{
     const {email,password} = req.body;

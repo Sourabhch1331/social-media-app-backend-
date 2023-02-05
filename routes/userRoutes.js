@@ -4,7 +4,11 @@ const userController = require('../controllers/userController');
 
 const userRouter = express.Router();
 
-userRouter.post('/signUp',authController.signUp);
+userRouter.post('/signUp',
+    authController.multerMiddleware,
+    authController.signUp
+);
+
 userRouter.post('/login',authController.login);
 userRouter.get('/logout',authController.logout);
 
