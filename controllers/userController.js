@@ -2,6 +2,7 @@ const { filter } = require('compression');
 const express = require('express');
 const userModel = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const createFilterObj = (obj,...keep)=>{
     const filteredObj={};
@@ -37,3 +38,32 @@ exports.getAllUsers = async (req,res,next) => {
         data: users
     });
 }
+
+
+exports.follow = catchAsync(async (req,res,next)=> {
+    const currUser = await userModel.findById(req.user._id);
+
+    if(!currUser) return next(new AppError('user do not exist',400));
+
+    currUser.following.push(req.params.userId);
+    await currUser.save({runValidators: false});
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Followed succesfully!'
+    })
+})
+exports.unfollow = catchAsync(async (req,res,next)=> {
+    const currUser = await userModel.findById(req.user._id);
+
+    if(!currUser) return next(new AppError('user do not exist',400));
+    
+    currUser.following = currUser.following.filter( id => (id!=req.params.userId));
+
+    await currUser.save({runValidators: false});
+
+    res.status(200).json({
+        status: 'success',
+        message: 'removed from following'
+    })
+})

@@ -11,8 +11,7 @@ const userSchema = new mongoose.Schema({
     },
     username: {
         type: String,
-        required: [true,'A User must have a username'],
-        unique: true
+        required: [true,'A User must have a username']
     },
     photo:{
         type: String,
@@ -43,9 +42,12 @@ const userSchema = new mongoose.Schema({
         },
         select: false
     },
+    following:{
+        type:[String]
+    },
     passwordsChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date,
+    passwordResetExpires: Date
 });
 
 userSchema.pre('save',async function(next){
@@ -78,6 +80,7 @@ userSchema.methods.changedPasswordsAfter =  function(JWTTimestamp){
     }
     return false;
 }
+
 
 userSchema.methods.createPasswordResetToken = function() {
     const resetToken = crypto.randomBytes(32).toString('hex');

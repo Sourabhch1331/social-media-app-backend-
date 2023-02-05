@@ -1,28 +1,36 @@
 const catchAsync = require('../utils/catchAsync');
 const nodemailer = require('nodemailer');
 
-exports.sendForgetPasswordMail = catchAsync(async (toEmail,url,message)=>{
-    const from = `sourabhchprojects@gmail.com`;
-    const subject='Passowrd Reset Token(valid for 10min).';
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: from,
-            pass:  process.env.GMAIL_PASSWORD
-        }
-    });
-
-    const mailOptions = {
-        from,
-        to: toEmail,
-        subject,
-        text:message
+module.exports = class Email{
+    constructor(toEmail,subject,message){
+        this.toEmail = toEmail;
+        this.subject = subject;
+        this.message = message;
+        this.from = process.env.FROM_EMAIL;
     }
 
-    transporter.sendMail(mailOptions,(err,info)=>{
-        if(err){
-            console.log(err);
+    send(){
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: this.from,
+                pass:  process.env.GMAIL_PASSWORD
+            }
+        });
+    
+        const mailOptions = {
+            from:this.from,
+            to: this.toEmail,
+            subject:this.subject,
+            text:this.message
         }
-    });
-});
+    
+        transporter.sendMail(mailOptions,(err,info)=>{
+            if(err){
+                console.log(err);
+            }
+        });
+    }
+
+}
+

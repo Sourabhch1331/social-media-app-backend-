@@ -6,12 +6,11 @@ const catchAsync = require('../utils/catchAsync');
 const Email = require('../utils/email');
 const AppError = require('../utils/appError');
 
-
 const signToken = (id)=>{
     return jwt.sign({id},process.env.JWT_SECRET,{
         expiresIn:process.env.JWT_EXPIRES_IN
     });
-};
+};  
 
 const createAndSendToken = (user,statusCode,res)=>{
     const token=signToken(user._id);
@@ -131,9 +130,9 @@ exports.forgotPassword = catchAsync(async (req,res,next)=>{
     await user.save({validateBeforeSave:false});
 
     try{
-        const resetUrl=`${req.protocol}://${req.get('host')}/api/v1/user/resetPassword/${passwordResetToken}`;
-        const message=`To reset your password, click on the below link. You will be redirected to the reset page.Hurry up it expires in 10 minutes! \n ${resetUrl}`;
-        await Email.sendForgetPasswordMail(email,resetUrl,message);
+        const message=`To reset your password, use the below OPT(One Time Password). \n OTP: ${passwordResetToken}`;
+        const subject='OTP for password reset(expires in 10 minutes)';
+        await new Email(email,subject,message).send();
 
         res.status(200).json({
             status: 'success',
@@ -147,7 +146,6 @@ exports.forgotPassword = catchAsync(async (req,res,next)=>{
         
         return next(new AppError('There was some problem sending email! Try again later.',500));
     }
-
 
 });
 

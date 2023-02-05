@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const userRoutes = require('./routes/userRoutes');
+const postRouter = require('./routes/postRouter');
+
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
@@ -28,6 +30,7 @@ if(process.env.Node_ENV === 'development'){
 }
 
 app.use('/api/v1/user',userRoutes);
+app.use('/api/v1/post',postRouter);
 app.use('/',(req,res)=>{
     res.send('hello from server');
 });

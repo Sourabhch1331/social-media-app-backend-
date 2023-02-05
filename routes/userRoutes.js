@@ -20,5 +20,11 @@ userRouter.patch('/updateMe',userController.updateMe);
 userRouter.patch('/updateMyPassword',authController.updatePassword);    // add photo upload functionalities
 
 
+// following functionalities
+
+userRouter.get('/follow/:userId',userController.follow);
+userRouter.get('/unfollow/:userId',userController.unfollow);
+
+
 
 module.exports= userRouter;
