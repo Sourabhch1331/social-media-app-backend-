@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
+const sharp = require('sharp');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -15,27 +15,6 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
-
-// Multer config
-const storage = multer.memoryStorage();
-const upload = multer({ 
-    storage,
-    //limiting file size by 5Mb
-    limits: { fileSize: 5 * 1024 * 1024 },
-    //accepting only jpg jpeg png files
-    fileFilter: function (req, file, cb) {
-        const fileRegex = new RegExp('\.(jpg|jpeg|png)$');
-        const fileName = file.originalname;
-
-        if (!fileName.match(fileRegex)) {
-            //throw exception
-            return cb(new Error('Invalid file type'));
-        }
-        //pass the file
-        cb(null, true);
-    }
-});
-
 const uploadStream = (fileStream, name) => {
     return new Promise((resolve, reject) => {        
         cloudinary.uploader.upload_stream({ public_id: name }, (error, result) => {
@@ -48,16 +27,15 @@ const uploadStream = (fileStream, name) => {
     });
 };
 
-exports.multerMiddleware=upload.single('photo');
-
 exports.createPost = catchAsync(async (req,res,next)=>{
-
     // img uploading
-    const imageSream= req.file.buffer;
+
+    if(!req.file) return next('No file exist or file size too big!',400);
+
+    const imageSream = await sharp(req.file.buffer).resize({height: 1920 , width: 1080 , fit: "contain"}).toBuffer();
     const imageName = `${req.user.email}-${Date.now()}`;
 
     const uploadResult = await uploadStream(imageSream, imageName);
-
 
     const {caption} = req.body;
     const post = await postModel.create({
@@ -65,7 +43,8 @@ exports.createPost = catchAsync(async (req,res,next)=>{
         photo: uploadResult.url,
         imgName:imageName,
         createdAt: new Date().toLocaleDateString(),
-        user: req.user._id
+        user: req.user._id,
+        isSample: (req.body.isSample ? req.body.isSample:false)
     });
 
     res.status(201).json({
@@ -100,6 +79,17 @@ exports.deletePost = catchAsync(async (req,res,next)=>{
         message: 'Deleted!'
     });
 
+});
+
+exports.getSamplePost = catchAsync(async (req, res,next) => {
+    const post = await postModel.find({isSample: true});
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            post
+        }
+    })
 });
 
 exports.getAllPost = catchAsync(async (req,res,next)=>{

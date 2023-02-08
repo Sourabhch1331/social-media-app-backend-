@@ -25,6 +25,10 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isSample: {
+        type: Boolean,
+        default: false
+    },
     createdAt:Date,
     likes:{
         type: Number,

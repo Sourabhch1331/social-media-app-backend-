@@ -1,11 +1,13 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
+const multer = require('multer');
+const uploadSingle = require('../utils/multerConfig');
 
 const userRouter = express.Router();
 
 userRouter.post('/signUp',
-    authController.multerMiddleware,
+    uploadSingle('photo'),
     authController.signUp
 );
 
@@ -26,8 +28,8 @@ userRouter.patch('/updateMyPassword',authController.updatePassword);    // add p
 
 // following functionalities
 
-userRouter.get('/follow/:userId',userController.follow);
-userRouter.get('/unfollow/:userId',userController.unfollow);
+userRouter.patch('/follow/:userId',userController.follow);
+userRouter.patch('/unfollow/:userId',userController.unfollow);
 
 
 

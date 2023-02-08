@@ -1,16 +1,17 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const postController = require('../controllers/postController'); 
-
+const uploadSingle = require('../utils/multerConfig');
 const postRouter = express.Router();
 
 
-postRouter.use(authController.protect);
+postRouter.get('/getSamplePost',postController.getSamplePost);
 
+postRouter.use(authController.protect);
 
 // Create and Delete post routes
 postRouter.post('/createPost',
-    postController.multerMiddleware,
+    uploadSingle('photo'),
     postController.createPost
 );
 
