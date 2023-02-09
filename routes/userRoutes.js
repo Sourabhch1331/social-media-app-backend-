@@ -32,5 +32,4 @@ userRouter.patch('/follow/:userId',userController.follow);
 userRouter.patch('/unfollow/:userId',userController.unfollow);
 
 
-
 module.exports= userRouter;
