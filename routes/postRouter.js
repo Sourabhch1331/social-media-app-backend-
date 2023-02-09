@@ -2,6 +2,8 @@ const express = require('express');
 const authController = require('../controllers/authController');
 const postController = require('../controllers/postController'); 
 const uploadSingle = require('../utils/multerConfig');
+
+
 const postRouter = express.Router();
 
 
