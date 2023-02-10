@@ -21,26 +21,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set Security http headers
 app.use(
-    helmet.contentSecurityPolicy({
-      directives: {
-        defaultSrc: ["'self'", 'http://127.0.0.1:3000/*'],
-        baseUri: ["'self'"],
-        fontSrc: ["'self'", 'https:', 'data:'],
-        scriptSrc: ["'self'", 'https://*.cloudflare.com' ],
-        scriptSrc: ["'self'", 'https://*.stripe.com', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js'],
-        frameSrc: ["'self'", 'https://*.stripe.com'],
-        objectSrc: ["'none'"],
-        styleSrc: ["'self'", 'https:', 'unsafe-inline'],
-        upgradeInsecureRequests: [],
-      },
-    })
-  );
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", 'http://127.0.0.1:3000/*'],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", 'https:', 'data:'],
+      scriptSrc: ["'self'", 'https://*.cloudflare.com' ],
+      scriptSrc: ["'self'", 'https://*.stripe.com', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js'],
+      frameSrc: ["'self'", 'https://*.stripe.com'],
+      objectSrc: ["'none'"],
+      styleSrc: ["'self'", 'https:', 'unsafe-inline'],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
 
 
 // body parser
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({extended: true, limit: '10kb'}));
+app.use(express.urlencoded({extended: true}));
 
 // Data Sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -56,12 +56,11 @@ app.use(cors());
 app.options('*',cors());
 
 if(process.env.Node_ENV === 'development'){
-    app.use(morgan('dev'));
+  app.use(morgan('dev'));
 }
 
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/post',postRouter);
-
 
 
 app.all('*',(req,res,next)=>{

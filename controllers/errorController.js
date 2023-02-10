@@ -26,7 +26,7 @@ const handleJsonWebTokenError= () => new AppError('Ivalid token, Please log in a
 const handleJsonWebTokenExpiredWrror= () => new AppError('Token has expired! Please login again.',401);
 
 
-const sendErrorDev= (err,req,res)=>{
+const sendErrorDev= (err,res)=>{
     res.status(err.statusCode).json({
         status: err.status,
         error:err,
@@ -47,7 +47,7 @@ const sendErrorProd = (err,res)=>{
     console.error('Error 💥',err);
     
     // 2) send generic error
-    return res.status(500).json({
+    res.status(500).json({
         status: 'error',
         message: 'something went wrong!'
     });
@@ -70,10 +70,10 @@ module.exports=(err,req,res,next)=>{
         if(err.name === 'JsonWebTokenError') error=handleJsonWebTokenError();
         if(err.name === 'TokenExpiredError') error=handleJsonWebTokenExpiredWrror();
 
-        sendErrorProd(error,req,res)
+        sendErrorProd(error,res)
     }
     else{
-        sendErrorDev(err,res,res);
+        sendErrorDev(err,res);
     }
 }
 

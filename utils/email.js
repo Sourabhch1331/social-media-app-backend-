@@ -1,5 +1,6 @@
 const catchAsync = require('../utils/catchAsync');
 const nodemailer = require('nodemailer');
+const AppError = require('./appError');
 
 module.exports = class Email{
     constructor(toEmail,subject,message){
@@ -10,6 +11,7 @@ module.exports = class Email{
     }
 
     send(){
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -27,9 +29,10 @@ module.exports = class Email{
     
         transporter.sendMail(mailOptions,(err,info)=>{
             if(err){
-                console.log(err);
+                throw new AppError('There was some problem sending mail! Please try again later',500);
             }
         });
+
     }
 
 }
