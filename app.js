@@ -34,7 +34,7 @@ app.use(
       upgradeInsecureRequests: [],
     },
   })
-);
+); 
 
 
 // body parser

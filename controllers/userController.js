@@ -2,7 +2,15 @@ const { filter } = require('compression');
 const express = require('express');
 const userModel = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
+const cloudinary = require('cloudinary').v2;
 const AppError = require('../utils/appError');
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
 
 const createFilterObj = (obj,...keep)=>{
     const filteredObj={};
@@ -28,6 +36,28 @@ exports.updateMe = catchAsync(async (req,res,next)=>{
         data: updatedUser
     })
 
+});
+
+
+const deleteImage = (imageName)=>{
+    return new Promise((resolve,reject)=>{
+        cloudinary.uploader.destroy(imageName, function(error,result) {
+            if(error) reject(error);
+            else resolve(result);
+        });
+    });
+}
+
+exports.deleteMe = catchAsync(async (req,res,next)=>{
+    const deletedUser=await userModel.findByIdAndDelete(req.user._id);
+    console.log(deletedUser);
+
+    await deleteImage(req.user.imageName);
+    
+    res.status(200).json({
+        status: 'success',
+        message: 'User deleted successfully!'
+    });
 });
 
 

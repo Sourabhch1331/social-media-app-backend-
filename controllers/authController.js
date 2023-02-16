@@ -56,7 +56,7 @@ const uploadStream = (fileStream, name) => {
 
 exports.signUp = catchAsync(async (req,res,next)=>{
 
-    // console.log(req.file);
+    console.log(req.file);
     const imageSream= req.file.buffer;
     const imageName = req.body.email;
 
@@ -69,7 +69,8 @@ exports.signUp = catchAsync(async (req,res,next)=>{
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        photo:uploadResult.url
+        photo:uploadResult.url,
+        imageName
     });
 
     createAndSendToken(newUser,201,res);

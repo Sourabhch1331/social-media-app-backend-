@@ -22,9 +22,11 @@ userRouter.patch('/resetPassword/:token',authController.resetPassword);
 userRouter.get('/',userController.getAllUsers);
 userRouter.use(authController.protect);
 
-userRouter.patch('/updateMe',userController.updateMe);
 userRouter.patch('/updateMyPassword',authController.updatePassword);    // add photo upload functionalities
 
+userRouter.route('/me') 
+    .patch(uploadSingle('photo'),userController.updateMe)
+    .delete(userController.deleteMe);
 
 // following functionalities
 
