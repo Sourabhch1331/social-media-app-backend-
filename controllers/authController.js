@@ -18,7 +18,7 @@ const signToken = (id)=>{
 const createAndSendToken = (user,statusCode,res)=>{
     const token=signToken(user._id);
     const cookieOptions = {
-        expires: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES_IN*24*60*60*1000),
+        expiresIn: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES_IN*24*60*60*1000),
         httpOnly: true
     };
     if(process.env.NODE_ENV === 'production') cookieOptions.secure = true;
@@ -56,7 +56,7 @@ const uploadStream = (fileStream, name) => {
 
 exports.signUp = catchAsync(async (req,res,next)=>{
 
-    console.log(req.file);
+    // console.log(req.file);
     const imageSream= req.file.buffer;
     const imageName = req.body.email;
 
