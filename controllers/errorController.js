@@ -36,6 +36,7 @@ const sendErrorDev= (err,res)=>{
 };
 
 const sendErrorProd = (err,res)=>{
+
     if(err.isOperational){
         return res.status(err.statusCode).json({
             status: err.status,
@@ -61,15 +62,17 @@ module.exports=(err,req,res,next)=>{
 
 
     if(process.env.NODE_ENV === 'production'){
-        let error=Object.assign({},err)
-        error.message=err.message;
 
+        let error=Object.assign({},err);
+        error.message=err.message;
+        
         if(err.name === 'CastError') error=handleCasteErrorDB(error)
         if(err.code === 11000) error=handleDuplicateErrorDB(error);
         if(err._message === 'Tour validation failed') error=handleValidationErrorDB(error);
         if(err.name === 'JsonWebTokenError') error=handleJsonWebTokenError();
         if(err.name === 'TokenExpiredError') error=handleJsonWebTokenExpiredWrror();
 
+        console.log(error);
         sendErrorProd(error,res)
     }
     else{
