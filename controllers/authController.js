@@ -56,7 +56,10 @@ const uploadStream = (fileStream, name) => {
 
 exports.signUp = catchAsync(async (req,res,next)=>{
 
-    // console.log(req.file);
+    if((req.file.size/1e6) > 3){
+        return next(new AppError('The of image is greater than 2mb! Please select smaller image',400));
+    }
+
     const imageSream= req.file.buffer;
     const imageName = req.body.email;
 
