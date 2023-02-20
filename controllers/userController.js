@@ -51,7 +51,7 @@ const deleteImage = (imageName)=>{
 exports.deleteMe = catchAsync(async (req,res,next)=>{
     const deletedUser=await userModel.findByIdAndDelete(req.user._id);
 
-    await deleteImage(req.user.imageName);
+    if(req.user.imageName!='default') await deleteImage(req.user.imageName);
     
     res.status(200).json({
         status: 'success',

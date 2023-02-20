@@ -56,14 +56,18 @@ const uploadStream = (fileStream, name) => {
 
 exports.signUp = catchAsync(async (req,res,next)=>{
 
-    if((req.file.size/1e6) > 3){
-        return next(new AppError('The of image is greater than 2mb! Please select smaller image',400));
+    let uploadResult;
+    let imageName='default';
+    const defaultUrl='https://res.cloudinary.com/dtf4qywla/image/upload/v1676886183/default.png';
+
+    if(req.file){
+        if((req.file.size/1e6) > 3){
+            return next(new AppError('The of image is greater than 2mb! Please select smaller image',400));
+        }
+        const imageSream= req.file.buffer;
+        imageName = req.body.email;
+        uploadResult = await uploadStream(imageSream, imageName);
     }
-
-    const imageSream= req.file.buffer;
-    const imageName = req.body.email;
-
-    const uploadResult = await uploadStream(imageSream, imageName);
 
 
     const newUser = await UserModel.create({
@@ -72,7 +76,7 @@ exports.signUp = catchAsync(async (req,res,next)=>{
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        photo:uploadResult.url,
+        photo:uploadResult ? uploadResult.url: defaultUrl,
         imageName
     });
 

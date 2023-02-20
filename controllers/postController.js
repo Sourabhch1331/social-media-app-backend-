@@ -89,7 +89,7 @@ exports.getSamplePost = catchAsync(async (req, res,next) => {
         data: {
             post
         }
-    })
+    });
 });
 
 exports.getAllPost = catchAsync(async (req,res,next)=>{

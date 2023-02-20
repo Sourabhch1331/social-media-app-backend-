@@ -15,9 +15,12 @@ const userSchema = new mongoose.Schema({
     },
     photo:{
         type: String,
-        default: 'default.jpeg'
+        default: 'default.png'
     },
-    imageName:String,
+    imageName:{
+        type: String,
+        default: 'default.png'
+    },
     email:{
         type:String,
         required:[true,'Please provide your Email'],
