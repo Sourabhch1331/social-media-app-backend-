@@ -105,7 +105,7 @@ exports.protect= catchAsync(async (req,res,next)=>{
     const currUser= await UserModel.findById(userId);
 
     if(!currUser){
-        return next(Error('User does no longer exist!'));
+        return next(new AppError('User does no longer exist!',400));
     }
 
     if(currUser.changedPasswordsAfter(decoded.iat)){
