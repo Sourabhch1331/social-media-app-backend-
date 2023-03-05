@@ -30,7 +30,7 @@ const uploadStream = (fileStream, name) => {
 exports.createPost = catchAsync(async (req,res,next)=>{
     // img uploading
 
-    if(!req.file) return next('No file exist or file size too big!',400);
+    if(!req.file) return next(new AppError('No file exist or file size too big!',400));
 
     const imageSream = await sharp(req.file.buffer).resize({height: 1920 , width: 1080 , fit: "contain"}).toBuffer();
     const imageName = `${req.user.email}-${Date.now()}`;
@@ -56,7 +56,7 @@ exports.createPost = catchAsync(async (req,res,next)=>{
 });
 
 exports.deletePost = catchAsync(async (req,res,next)=>{
-
+    
     const deletedPost=await postModel.findOneAndDelete({
         $and:[
             {
@@ -86,6 +86,7 @@ exports.getSamplePost = catchAsync(async (req, res,next) => {
 
     res.status(200).json({
         status: 'success',
+        results: post ? post.length:0,
         data: {
             post
         }

@@ -1,6 +1,7 @@
 const { filter } = require('compression');
 const express = require('express');
 const userModel = require('../models/userModel');
+const postModel = require('../models/postModel');
 const catchAsync = require('../utils/catchAsync');
 const cloudinary = require('cloudinary').v2;
 const AppError = require('../utils/appError');
@@ -53,6 +54,18 @@ exports.deleteMe = catchAsync(async (req,res,next)=>{
 
     if(req.user.imageName!='default') await deleteImage(req.user.imageName);
     
+    const userId= req.user._id;
+
+    const postToDelete=await postModel.find({user:userId});
+
+    allPromises=postToDelete.map(async (post)=>{
+        return await deleteImage(post.imgName);
+    })
+
+    await Promise.all(allPromises);
+
+    await postModel.deleteMany({user:userId});
+
     res.status(200).json({
         status: 'success',
         message: 'User deleted successfully!'
