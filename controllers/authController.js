@@ -164,7 +164,7 @@ exports.updatePassword = catchAsync(async(req,res,next)=>{
 exports.forgotPassword = catchAsync(async (req,res,next)=>{
     const email = req.body.email;
     const user = await UserModel.findOne({email});
-    console.log(email,user);
+    // console.log(email,user);
     if(!user) return next(new AppError('No user exist with provided email!',400));
 
     const passwordResetToken = user.createPasswordResetToken();

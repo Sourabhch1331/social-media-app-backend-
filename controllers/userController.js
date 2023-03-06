@@ -21,6 +21,16 @@ const createFilterObj = (obj,...keep)=>{
     return filteredObj;
 };
 
+exports.getMe = catchAsync(async (req,res,next)=>{
+    res.status(200).json({
+        status: 'success',
+        results:1,
+        data:{
+            user:req.user
+        }
+    })
+});
+
 exports.updateMe = catchAsync(async (req,res,next)=>{
 
     if(req.body.password || req.body.passwordConfirm){

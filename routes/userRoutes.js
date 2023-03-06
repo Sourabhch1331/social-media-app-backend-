@@ -26,7 +26,8 @@ userRouter.patch('/updateMyPassword',authController.updatePassword);    // add p
 
 userRouter.route('/me') 
     .patch(uploadSingle('photo'),userController.updateMe)
-    .delete(userController.deleteMe);
+    .delete(userController.deleteMe)
+    .get(userController.getMe);
 
 // following functionalities
 
