@@ -53,7 +53,7 @@ app.use(compression());
 
 // Cors
 app.use(cors());
-app.options('*',cors());
+// app.options('*',cors());
 
 if(process.env.Node_ENV === 'development'){
   app.use(morgan('dev'));
