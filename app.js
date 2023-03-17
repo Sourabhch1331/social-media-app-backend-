@@ -52,8 +52,7 @@ app.use(xss());
 app.use(compression());
 
 // Cors
-app.use(cors());
-app.options('*',cors());
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 
 if(process.env.Node_ENV === 'development'){
   app.use(morgan('dev'));
