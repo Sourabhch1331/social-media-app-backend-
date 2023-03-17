@@ -12,15 +12,15 @@ userRouter.post('/signUp',
 );
 
 userRouter.post('/login',authController.login);
-userRouter.get('/logout',authController.logout);
+userRouter.get('/',userController.getAllUsers);
 
+// All the below routes are protected
+userRouter.use(authController.protect);
+
+userRouter.get('/logout',authController.logout);
 
 userRouter.post('/forgotPassword',authController.forgotPassword);
 userRouter.patch('/resetPassword/:token',authController.resetPassword);
-
-// All the below routes are protected
-userRouter.get('/',userController.getAllUsers);
-userRouter.use(authController.protect);
 
 userRouter.patch('/updateMyPassword',authController.updatePassword);    // add photo upload functionalities
 
