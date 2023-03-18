@@ -21,13 +21,6 @@ const handleValidationErrorDB = err =>{
     return new AppError(message,400);
 };
 
-const handleValidatorError = err => {
-    const errors=Object.entries(err.errors).map(el => el[1].properties.message);
-
-    const message=`Ivalid input Data for fields ${errors.join('. ')}`;
-    return new AppError(message,400);
-}
-
 const handleJsonWebTokenError= () => new AppError('Ivalid token, Please log in again',401);
 
 const handleJsonWebTokenExpiredWrror= () => new AppError('Token has expired! Please login again.',401);
@@ -75,10 +68,10 @@ module.exports=(err,req,res,next)=>{
         
         if(err.name === 'CastError') error=handleCasteErrorDB(error)
         if(err.code === 11000) error=handleDuplicateErrorDB(error);
-        if(err._message === 'Tour validation failed') error=handleValidationErrorDB(error);
+        if(err._message === 'User validation failed') error=handleValidationErrorDB(error);
         if(err.name === 'JsonWebTokenError') error=handleJsonWebTokenError();
         if(err.name === 'TokenExpiredError') error=handleJsonWebTokenExpiredWrror();
-        if(err.name === 'ValidatorError:') error=handleValidatorError();
+        
         // console.log(error);
         sendErrorProd(error,res)
     }
