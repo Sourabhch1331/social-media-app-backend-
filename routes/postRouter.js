@@ -11,20 +11,24 @@ postRouter.get('/getSamplePost',postController.getSamplePost);
 
 postRouter.use(authController.protect);
 
+
+// getAllPost
+postRouter.get('/',postController.getAllPost);
+
+
 // Create and Delete post routes
-postRouter.post('/createPost',
+postRouter.post('/',
     uploadSingle('photo'),
     postController.createPost
 );
 
-postRouter.delete('/deletePost/:postId',postController.deletePost);
+postRouter.delete('/:postId',postController.deletePost);
 
 // Like and comment routes
 postRouter.post('/likePost/:postId',postController.likePost);
 postRouter.post('/comment/:postId',postController.commentOnPost)
 
 // Get post routes
-postRouter.get('/getAllPost',postController.getAllPost);
 postRouter.get('/getAllMyPost',postController.getMyPost);
 
 

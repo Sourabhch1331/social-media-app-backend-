@@ -42,7 +42,7 @@ exports.createPost = catchAsync(async (req,res,next)=>{
         caption,
         photo: uploadResult.url,
         imgName:imageName,
-        createdAt: new Date().toLocaleDateString(),
+        createdAt: new Date(),
         user: req.user._id,
         isSample: (req.body.isSample ? req.body.isSample:false)
     });
@@ -97,6 +97,8 @@ exports.getAllPost = catchAsync(async (req,res,next)=>{
     // 1) Get curr logged in user
     const user = await userModel.findById({_id:req.user._id});
     if(!user) return next(new AppError('No User exist!',404));
+
+    // console.log(req.query);
 
     // 2) traverse all the user which curr user follow
     let posts=[];
