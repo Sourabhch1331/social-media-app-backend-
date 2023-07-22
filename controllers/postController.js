@@ -101,28 +101,28 @@ exports.getAllPost = catchAsync(async (req,res,next)=>{
     // console.log(req.query);
 
     // 2) traverse all the user which curr user follow
-    let posts=[];
+    // let posts=[];
 
+    const AllFollowing=user.following;
 
-    const allPostPromise=user.following.map(async (userId) =>{
-        return await postModel.find({user:userId}).populate({
-                path: 'user',
-                select: 'id username photo'
-            }).populate({
-                path: 'comments.user',
-                select: 'id username photo'
-            });
-    });
-    
-    const allPosts=await Promise.all(allPostPromise);   
-    
-    allPosts.forEach(post => posts.push(...post));
+    const page=req.query?.page*1 || 1;
+    const limit=req.query?.limit*1 || 100;
+    const skipVal=(page-1)*limit;
+
+    const post = await postModel.find({user:{ $in: AllFollowing }}).populate({
+        path: 'user',
+        select: 'id username photo'
+    }).populate({
+        path: 'comments.user',
+        select: 'id username photo'
+    }).sort('createdAt').skip(skipVal).limit(limit);
+
 
     res.status(200).json({
         status: 'success',
-        results: posts ? posts.length:0,
+        results: post ? post.length:0,
         data:{
-            posts
+            post
         }
     });
 

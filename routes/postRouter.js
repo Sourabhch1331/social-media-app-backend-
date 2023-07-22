@@ -16,7 +16,6 @@ postRouter.use(authController.protect);
 postRouter.get('/',postController.getAllPost);
 
 
-
 // Create and Delete post routes
 postRouter.post('/',
     uploadSingle('photo'),
